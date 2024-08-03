@@ -21,7 +21,7 @@ build: ## build go files.
 	--rm -v ./:/src \
 	-w /src \
 	-e GOPATH=/ \
-	tinygo/tinygo tinygo build -target=hifive1b -o ./build/sample.hex ./src/sample
+	tinygo/tinygo tinygo build -target=pico -o ./build/01_blinky1.hex ./src/01_blinky1
 
 .PHONY: help
 help:
