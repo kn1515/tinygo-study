@@ -9,9 +9,7 @@ GOCLEAN=go clean
 GOTEST=go test
 GOGET=go get
 
-CONTAINER=golang
 DOCKER_EXEC=docker exec
-DOCKER_COMPOSE=docker compose
 
 .PHONY: clean
 clean: ## clean build files.
@@ -19,28 +17,18 @@ clean: ## clean build files.
 
 .PHONY: build
 build: ## build go files.
-	@$(DOCKER_EXEC) $(CONTAINER) bash -c "$(GOBUILD) -o ./build/tiny ./src"
-
-.PHONY: run
-run: ## run go files.
-	@$(DOCKER_EXEC) $(CONTAINER) bash -c "$(GORUN) ./src/*.go"
-
-.PHONY: setup
-setup: ## containers start.
-	@$(DOCKER_COMPOSE) up -d
-
-.PHONY: down
-down: ## remove docker containers.
-	@$(DOCKER_COMPOSE) down
-
-.PHONY: exec
-down: ## attach to the docker container.
-	@docker exec -it tiny-go bash 
+	@docker run -it \
+	--rm -v ./:/src \
+	-w /src \
+	-e GOPATH=/ \
+	tinygo/tinygo tinygo build -target=hifive1b -o ./build/sample.hex ./src/sample
 
 .PHONY: help
-help: ## display this help screen
-    @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE) | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+help:
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Targets:"
+	@awk 'BEGIN {FS = ":.*#"} /^[a-zA-Z_-]+:.*?#/ {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 %:
 	@echo 'command "$@" is not found.'
